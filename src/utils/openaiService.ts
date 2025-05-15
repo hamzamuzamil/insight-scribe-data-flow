@@ -2,13 +2,14 @@
 import { toast } from "@/components/ui/sonner";
 
 // OpenAI API key from environment variable
-const OPENAI_API_KEY = "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";
+// Note: In a production environment, this should be loaded from a server-side environment variable
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "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";
 
-const SYSTEM_MESSAGE = `You are an AI data analyst. When given CSV data in JSON format, analyze it and return:
-- A short summary of trends and anomalies
-- A chart config (JSON) with type, x, y, and sample data
-- Suggested follow-up questions
-Format response as a valid JSON object.`;
+const SYSTEM_MESSAGE = `You are a senior AI data analyst. When given JSON-formatted CSV data, return:
+1. A 3-sentence summary of key trends
+2. A chart config object: { chartType, xAxis, yAxis, title, data }
+3. Three follow-up questions
+Format output as valid JSON.`;
 
 interface OpenAIResponse {
   choices: {
@@ -18,13 +19,39 @@ interface OpenAIResponse {
   }[];
 }
 
+interface AnalysisResult {
+  summary: string;
+  chart: {
+    chartType: string;
+    xAxis: string;
+    yAxis: string;
+    title: string;
+    data: any[];
+  };
+  suggestedQuestions: string[];
+}
+
 // Helper function to limit data rows for OpenAI calls
 const preprocessData = (data: any[]): any[] => {
   if (!data || data.length === 0) {
     throw new Error("No data found. Please upload a valid CSV.");
   }
+  
   // Limit to 100 rows to prevent overloading the API
-  return data.slice(0, 100);
+  const limitedData = data.slice(0, 100);
+  
+  // Filter out empty columns
+  const cleanData = limitedData.map(row => {
+    const cleanRow: Record<string, any> = {};
+    Object.entries(row).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        cleanRow[key] = value;
+      }
+    });
+    return cleanRow;
+  });
+  
+  return cleanData;
 };
 
 export const analyzeDataWithGPT = async (data: any): Promise<string> => {
@@ -34,7 +61,7 @@ export const analyzeDataWithGPT = async (data: any): Promise<string> => {
       return "No data found. Please upload a valid CSV.";
     }
 
-    // Preprocess data to limit rows
+    // Preprocess data to limit rows and clean empty values
     const processedData = preprocessData(data);
 
     const requestBody = {
@@ -59,7 +86,7 @@ export const analyzeDataWithGPT = async (data: any): Promise<string> => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -74,8 +101,8 @@ export const analyzeDataWithGPT = async (data: any): Promise<string> => {
     return result.choices[0].message.content;
   } catch (error) {
     console.error("Error analyzing data with GPT:", error);
-    toast.error("AI is taking too long. Try again.");
-    return "Error analyzing data. Please try again later.";
+    toast.error("AI is taking too long. Try again or reduce file size.");
+    return "Error analyzing data. Please try again later or reduce file size.";
   }
 };
 
@@ -93,7 +120,7 @@ export const processUserQuestion = async (question: string, data: any): Promise<
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: "gpt-4-1106-preview",
@@ -104,7 +131,11 @@ export const processUserQuestion = async (question: string, data: any): Promise<
           },
           {
             role: "user",
-            content: `Given this data: ${JSON.stringify(processedData)}, ${question}. If this is a chart request, respond with valid JSON for the chart configuration.`,
+            content: JSON.stringify({
+              task: "answer",
+              question: question,
+              data: processedData
+            }),
           },
         ],
         temperature: 0.3,
@@ -121,7 +152,31 @@ export const processUserQuestion = async (question: string, data: any): Promise<
     return result.choices[0].message.content;
   } catch (error) {
     console.error("Error processing question with GPT:", error);
-    toast.error("AI is taking too long. Try again.");
-    return "Error processing your question. Please try again later.";
+    toast.error("We couldn't process that request. Please retry with different input.");
+    return "Error processing your question. Please try a different approach.";
+  }
+};
+
+// Parse AI response to expected format
+export const parseAIResponse = (response: string): AnalysisResult | null => {
+  try {
+    // Try to parse the entire response as JSON
+    const jsonMatch = response.match(/{[\s\S]*}/);
+    if (jsonMatch) {
+      const jsonStr = jsonMatch[0];
+      const parsedData = JSON.parse(jsonStr);
+      
+      // Validate the structure
+      if (parsedData.summary && parsedData.chart && parsedData.suggestedQuestions) {
+        return parsedData as AnalysisResult;
+      }
+    }
+    
+    // If parsing fails, return null
+    console.error("Failed to parse AI response:", response);
+    return null;
+  } catch (error) {
+    console.error("Error parsing AI response:", error);
+    return null;
   }
 };

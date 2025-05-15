@@ -7,12 +7,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Store exports in local storage instead of Supabase for now
 // (can be updated later when Supabase is integrated)
-export const storeExport = (data: any, insights: string) => {
+export const storeExport = (data: any, insights: string, chartConfig?: any) => {
   const id = uuidv4();
   const exportData = {
     id,
     data,
     insights,
+    chartConfig,
     timestamp: new Date().toISOString()
   };
   
@@ -47,10 +48,10 @@ export const exportAsPDF = async (elementId: string, filename: string = 'report.
   }
 };
 
-export const generateShareableLink = async (data: any, insights: string) => {
+export const generateShareableLink = async (data: any, insights: string, chartConfig?: any) => {
   try {
     // Store data and get unique ID
-    const id = storeExport(data, insights);
+    const id = storeExport(data, insights, chartConfig);
     
     // Create a shareable URL
     const link = `${window.location.origin}/share/${id}`;
@@ -62,7 +63,7 @@ export const generateShareableLink = async (data: any, insights: string) => {
     return link;
   } catch (error) {
     console.error("Error generating shareable link:", error);
-    toast.error("Failed to create shareable link");
+    toast.error("Couldn't generate a share link right now. Try again later.");
     return null;
   }
 };

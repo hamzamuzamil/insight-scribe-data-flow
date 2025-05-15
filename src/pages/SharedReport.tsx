@@ -4,13 +4,15 @@ import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { DynamicChart, tryParseChartData } from "@/utils/chartRenderer";
+import { DynamicChart } from "@/utils/chartRenderer";
 import { exportAsPDF } from "@/utils/exportUtils";
+import { TrendingUp, TrendingDown, BarChart } from 'lucide-react';
 
 interface ReportData {
   id: string;
   data: any;
   insights: string;
+  chartConfig?: any;
   timestamp: string;
 }
 
@@ -49,21 +51,20 @@ const SharedReport = () => {
     return new Date(dateString).toLocaleString();
   };
   
+  const getIconForInsight = (text: string) => {
+    if (text.toLowerCase().includes('growth') || text.toLowerCase().includes('increase')) {
+      return <TrendingUp className="w-5 h-5" />;
+    } else if (text.toLowerCase().includes('decrease') || text.toLowerCase().includes('decline')) {
+      return <TrendingDown className="w-5 h-5" />;
+    }
+    return <BarChart className="w-5 h-5" />;
+  };
+
   const formatInsights = (text: string) => {
     const sections = text.split('\n\n').filter(section => section.trim().length > 0);
     
     return sections.map((section, index) => {
-      let icon = '📊';
-      
-      if (section.toLowerCase().includes('growth') || section.toLowerCase().includes('increase')) {
-        icon = '📈';
-      } else if (section.toLowerCase().includes('decrease') || section.toLowerCase().includes('decline')) {
-        icon = '📉';
-      } else if (section.toLowerCase().includes('outlier')) {
-        icon = '⚠️';
-      } else if (section.toLowerCase().includes('correlation')) {
-        icon = '🧩';
-      }
+      const icon = getIconForInsight(section);
       
       return (
         <div key={index} className="insight-card mb-4">
@@ -107,9 +108,6 @@ const SharedReport = () => {
     );
   }
   
-  // Try to parse any chart data from insights
-  const chartData = tryParseChartData(report.insights);
-  
   return (
     <div className="container py-8" id="shared-report">
       <div className="mb-8">
@@ -148,8 +146,8 @@ const SharedReport = () => {
             <CardTitle>Visualization</CardTitle>
           </CardHeader>
           <CardContent>
-            {chartData ? (
-              <DynamicChart chartData={chartData} />
+            {report.chartConfig ? (
+              <DynamicChart chartData={report.chartConfig} />
             ) : (
               <div className="text-center p-10 text-muted-foreground">
                 No chart visualization available for this report.

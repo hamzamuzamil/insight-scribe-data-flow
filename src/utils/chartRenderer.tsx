@@ -19,6 +19,7 @@ import {
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { toast } from '@/components/ui/sonner';
+import { parseAIResponse } from './openaiService';
 
 export interface ChartData {
   chartType: 'bar' | 'line' | 'pie' | 'scatter';
@@ -44,16 +45,25 @@ export const isValidChartData = (data: any): data is ChartData => {
 // Function to try parsing JSON from a string
 export const tryParseChartData = (text: string): ChartData | null => {
   try {
-    // Find JSON-like structure in the text
+    // First try to parse using the structured parser
+    const parsedResponse = parseAIResponse(text);
+    if (parsedResponse && isValidChartData(parsedResponse.chart)) {
+      return parsedResponse.chart;
+    }
+    
+    // Fallback: find JSON-like structure in the text
     const jsonMatch = text.match(/{[\s\S]*}/);
     if (jsonMatch) {
       const jsonStr = jsonMatch[0];
       const parsedData = JSON.parse(jsonStr);
+      
       if (isValidChartData(parsedData)) {
         return parsedData;
+      } else if (parsedData.chart && isValidChartData(parsedData.chart)) {
+        return parsedData.chart;
       } else {
         console.error("Invalid chart data format:", parsedData);
-        toast.error("No chart config returned. Try again.");
+        toast.error("AI didn't generate a chart. Try asking for a bar or pie chart.");
       }
     }
     return null;

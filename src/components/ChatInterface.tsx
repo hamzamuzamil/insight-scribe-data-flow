@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { toast } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { analyzeDataWithGPT, processUserQuestion } from "@/utils/openaiService";
+import { analyzeDataWithGPT, processUserQuestion, parseAIResponse } from "@/utils/openaiService";
 import { DynamicChart, tryParseChartData, ChartData } from "@/utils/chartRenderer";
 import { exportAsPDF, generateShareableLink, exportToNotion, exportAsZIP } from "@/utils/exportUtils";
+import { TrendingUp, TrendingDown, BarChart } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -28,6 +29,8 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [insights, setInsights] = useState<string>('');
   const [initialAnalysisDone, setInitialAnalysisDone] = useState(false);
+  const [chartConfig, setChartConfig] = useState<ChartData | null>(null);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const reportContentRef = useRef<HTMLDivElement>(null);
@@ -69,7 +72,7 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
     const suggestionsArray = [
       `Summarize the key trends in this data`,
       `Show me a chart of ${headers[0]} over time`,
-      `What insights can you provide about about ${headers[headers.length > 1 ? 1 : 0]}?`
+      `What insights can you provide about ${headers[headers.length > 1 ? 1 : 0]}?`
     ];
     
     setSuggestions(suggestionsArray);
@@ -79,7 +82,30 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
     setIsLoading(true);
     try {
       const analysisResult = await analyzeDataWithGPT(csvData.data);
-      setInsights(analysisResult);
+      
+      // Try to parse the structured response
+      const parsedResponse = parseAIResponse(analysisResult);
+      
+      if (parsedResponse) {
+        // If we have a structured response, use it
+        setInsights(parsedResponse.summary);
+        setChartConfig(parsedResponse.chart);
+        setSuggestedQuestions(parsedResponse.suggestedQuestions);
+        
+        // Add suggested questions to the suggestions
+        if (parsedResponse.suggestedQuestions && parsedResponse.suggestedQuestions.length > 0) {
+          setSuggestions(prev => [...prev, ...parsedResponse.suggestedQuestions]);
+        }
+      } else {
+        // Otherwise just use the raw text
+        setInsights(analysisResult);
+        
+        // Try to extract chart data
+        const chart = tryParseChartData(analysisResult);
+        if (chart) {
+          setChartConfig(chart);
+        }
+      }
     } catch (error) {
       console.error("Error in initial analysis:", error);
       toast.error("Failed to analyze data");
@@ -115,26 +141,53 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
     try {
       const response = await processUserQuestion(userMessage.content, csvData.data);
       
-      // Try to extract chart data from response
-      const chartData = tryParseChartData(response);
+      // Try to parse structured response
+      const parsedResponse = parseAIResponse(response);
+      let aiResponseContent = response;
+      let chartData = null;
+      
+      if (parsedResponse) {
+        // If structured response, update insights
+        if (parsedResponse.summary) {
+          setInsights(prev => `${prev}\n\n${parsedResponse.summary}`);
+          aiResponseContent = parsedResponse.summary;
+        }
+        
+        // Update chart config if available
+        if (parsedResponse.chart && isValidChartData(parsedResponse.chart)) {
+          chartData = parsedResponse.chart;
+          setChartConfig(parsedResponse.chart);
+        }
+        
+        // Update suggested questions
+        if (parsedResponse.suggestedQuestions) {
+          setSuggestedQuestions(parsedResponse.suggestedQuestions);
+        }
+      } else {
+        // Try to extract chart data from unstructured response
+        chartData = tryParseChartData(response);
+        
+        if (chartData) {
+          aiResponseContent = response.replace(/{[\s\S]*}/, "Chart has been generated based on your request.");
+          setChartConfig(chartData);
+        }
+        
+        // Update insights with new information
+        setInsights(prev => `${prev}\n\n${aiResponseContent}`);
+      }
       
       const aiMessage: Message = {
         id: Date.now().toString(),
-        content: chartData ? response.replace(/{[\s\S]*}/, "Chart has been generated based on your request.") : response,
+        content: aiResponseContent,
         sender: 'ai',
         timestamp: new Date(),
         chartData: chartData
       };
       
       setMessages(prevMessages => [...prevMessages, aiMessage]);
-      
-      if (!chartData) {
-        // If no chart data was detected, update insights with this new information
-        setInsights(prev => prev + "\n\n" + response);
-      }
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to process your request');
+      toast.error("We couldn't process that request. Please retry with different input.");
       
       const errorMessage: Message = {
         id: Date.now().toString(),
@@ -159,12 +212,20 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
   };
 
   const handleShareLink = async () => {
-    // The error is likely here - generateShareableLink expects data and insights arguments
-    await generateShareableLink(csvData, insights); // Fixed: added the insights parameter
+    await generateShareableLink(csvData, insights, chartConfig);
   };
 
   const handleExportZIP = () => {
     exportAsZIP(csvData, insights, 'data-insights.zip');
+  };
+
+  const getIconForInsight = (text: string) => {
+    if (text.toLowerCase().includes('growth') || text.toLowerCase().includes('increase')) {
+      return <TrendingUp className="w-5 h-5" />;
+    } else if (text.toLowerCase().includes('decrease') || text.toLowerCase().includes('decline')) {
+      return <TrendingDown className="w-5 h-5" />;
+    }
+    return <BarChart className="w-5 h-5" />;
   };
 
   const formatInsights = (text: string) => {
@@ -172,17 +233,7 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
     const sections = text.split('\n\n').filter(section => section.trim().length > 0);
     
     return sections.map((section, index) => {
-      let icon = '📊';
-      
-      if (section.toLowerCase().includes('growth') || section.toLowerCase().includes('increase')) {
-        icon = '📈';
-      } else if (section.toLowerCase().includes('decrease') || section.toLowerCase().includes('decline')) {
-        icon = '📉';
-      } else if (section.toLowerCase().includes('outlier')) {
-        icon = '⚠️';
-      } else if (section.toLowerCase().includes('correlation')) {
-        icon = '🧩';
-      }
+      const icon = getIconForInsight(section);
       
       return (
         <div key={index} className="insight-card">
@@ -253,9 +304,9 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
 
             <CardFooter className="border-t border-white/10 p-4">
               <div className="flex flex-col w-full space-y-4">
-                {suggestions.length > 0 && messages.length <= 1 && (
+                {suggestions.length > 0 && messages.length <= 3 && (
                   <div className="flex flex-wrap gap-2">
-                    {suggestions.map((suggestion, index) => (
+                    {suggestions.slice(0, 3).map((suggestion, index) => (
                       <Button 
                         key={index} 
                         variant="outline" 
@@ -286,7 +337,7 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="insights">
+        <TabsContent value="insights" id="report-content">
           <Card className="glass border-white/10">
             <CardContent className="p-6">
               <h3 className="text-lg font-medium mb-4">Key Insights</h3>
@@ -299,6 +350,12 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
                 ) : insights ? (
                   <div className="space-y-4">
                     {formatInsights(insights)}
+                    {chartConfig && (
+                      <div className="mt-8">
+                        <h4 className="text-lg font-medium mb-4">Data Visualization</h4>
+                        <DynamicChart chartData={chartConfig} />
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center text-muted-foreground">
@@ -308,9 +365,31 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
               </div>
             </CardContent>
           </Card>
+          
+          {suggestedQuestions.length > 0 && (
+            <Card className="glass border-white/10 mt-4">
+              <CardHeader>
+                <CardTitle>Suggested Follow-up Questions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {suggestedQuestions.map((question, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      className="w-full justify-start text-left"
+                      onClick={() => handleSuggestionClick(question)}
+                    >
+                      {question}
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
-        <TabsContent value="export" id="report-content">
+        <TabsContent value="export">
           <Card className="glass border-white/10">
             <CardContent className="p-6" ref={reportContentRef}>
               <h3 className="text-lg font-medium mb-4">Export Options</h3>
