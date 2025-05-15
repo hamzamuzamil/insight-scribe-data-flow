@@ -3,6 +3,25 @@ import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import html2pdf from 'html2pdf.js';
 import { toast } from "@/components/ui/sonner";
+import { v4 as uuidv4 } from 'uuid';
+
+// Store exports in local storage instead of Supabase for now
+// (can be updated later when Supabase is integrated)
+export const storeExport = (data: any, insights: string) => {
+  const id = uuidv4();
+  const exportData = {
+    id,
+    data,
+    insights,
+    timestamp: new Date().toISOString()
+  };
+  
+  const storedExports = JSON.parse(localStorage.getItem('reports') || '[]');
+  storedExports.push(exportData);
+  localStorage.setItem('reports', JSON.stringify(storedExports));
+  
+  return id;
+};
 
 export const exportAsPDF = async (elementId: string, filename: string = 'report.pdf') => {
   const element = document.getElementById(elementId);
@@ -28,19 +47,24 @@ export const exportAsPDF = async (elementId: string, filename: string = 'report.
   }
 };
 
-export const generateShareableLink = async (data: any) => {
-  // In a real implementation, this would create a shareable link via backend
-  // Here we'll simulate it with localStorage
-  const id = `report-${Date.now()}`;
-  localStorage.setItem(id, JSON.stringify(data));
-  
-  const link = `${window.location.origin}/shared/${id}`;
-  
-  // Copy to clipboard
-  await navigator.clipboard.writeText(link);
-  toast.success("Share link copied to clipboard");
-  
-  return link;
+export const generateShareableLink = async (data: any, insights: string) => {
+  try {
+    // Store data and get unique ID
+    const id = storeExport(data, insights);
+    
+    // Create a shareable URL
+    const link = `${window.location.origin}/share/${id}`;
+    
+    // Copy to clipboard
+    await navigator.clipboard.writeText(link);
+    toast.success("Share link copied to clipboard");
+    
+    return link;
+  } catch (error) {
+    console.error("Error generating shareable link:", error);
+    toast.error("Failed to create shareable link");
+    return null;
+  }
 };
 
 export const exportToNotion = () => {
@@ -49,6 +73,11 @@ export const exportToNotion = () => {
 };
 
 export const exportAsZIP = async (csvData: any, insights: string, filename: string = 'data-insights.zip') => {
+  if (!csvData || !csvData.data) {
+    toast.error("No data available to export");
+    return;
+  }
+
   const zip = new JSZip();
   
   // Add CSV data

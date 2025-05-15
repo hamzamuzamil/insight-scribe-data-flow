@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import App from "./pages/App";
 import NotFound from "./pages/NotFound";
+import SharedReport from "./pages/SharedReport";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const AppContainer = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/app" element={<App />} />
+          <Route path="/share/:id" element={<SharedReport />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
@@ -27,3 +29,4 @@ const AppContainer = () => (
 );
 
 export default AppContainer;
+

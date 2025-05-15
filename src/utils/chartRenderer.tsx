@@ -18,6 +18,7 @@ import {
   Cell
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { toast } from '@/components/ui/sonner';
 
 export interface ChartData {
   chartType: 'bar' | 'line' | 'pie' | 'scatter';
@@ -32,6 +33,8 @@ export const isValidChartData = (data: any): data is ChartData => {
     data &&
     typeof data === 'object' &&
     'chartType' in data &&
+    'xAxis' in data &&
+    'yAxis' in data &&
     'data' in data &&
     Array.isArray(data.data) &&
     data.data.length > 0
@@ -48,6 +51,9 @@ export const tryParseChartData = (text: string): ChartData | null => {
       const parsedData = JSON.parse(jsonStr);
       if (isValidChartData(parsedData)) {
         return parsedData;
+      } else {
+        console.error("Invalid chart data format:", parsedData);
+        toast.error("No chart config returned. Try again.");
       }
     }
     return null;
