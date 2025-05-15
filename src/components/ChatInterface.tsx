@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -70,7 +69,7 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
     const suggestionsArray = [
       `Summarize the key trends in this data`,
       `Show me a chart of ${headers[0]} over time`,
-      `What insights can you provide about ${headers[headers.length > 1 ? 1 : 0]}?`
+      `What insights can you provide about about ${headers[headers.length > 1 ? 1 : 0]}?`
     ];
     
     setSuggestions(suggestionsArray);
@@ -160,11 +159,8 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
   };
 
   const handleShareLink = async () => {
-    await generateShareableLink({
-      data: csvData,
-      insights: insights,
-      messages: messages
-    });
+    // The error is likely here - generateShareableLink expects data and insights arguments
+    await generateShareableLink(csvData, insights); // Fixed: added the insights parameter
   };
 
   const handleExportZIP = () => {
