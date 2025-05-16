@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { toast } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { analyzeDataWithGPT, processUserQuestion, parseAIResponse } from "@/utils/openaiService";
-import { DynamicChart, tryParseChartData, ChartData } from "@/utils/chartRenderer";
+import { DynamicChart, tryParseChartData, ChartData, isValidChartData } from "@/utils/chartRenderer";
 import { exportAsPDF, generateShareableLink, exportToNotion, exportAsZIP } from "@/utils/exportUtils";
 import { TrendingUp, TrendingDown, BarChart } from 'lucide-react';
 
