@@ -66,7 +66,7 @@ export const analyzeDataWithGPT = async (data: any): Promise<string> => {
     const processedData = preprocessData(data);
 
     const requestBody = {
-      model: "gpt-4-1106-preview",
+      model: "gpt-4o", // Updated to use gpt-4o instead of gpt-4-1106-preview
       messages: [
         {
           role: "system",
@@ -124,7 +124,7 @@ export const processUserQuestion = async (question: string, data: any): Promise<
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4-1106-preview",
+        model: "gpt-4o", // Updated to use gpt-4o instead of gpt-4-1106-preview
         messages: [
           {
             role: "system",
