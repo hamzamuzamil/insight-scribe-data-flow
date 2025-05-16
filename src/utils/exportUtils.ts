@@ -4,10 +4,11 @@ import JSZip from 'jszip';
 import html2pdf from 'html2pdf.js';
 import { toast } from "@/components/ui/sonner";
 import { v4 as uuidv4 } from 'uuid';
+import { ChartData } from './chartRenderer';
 
 // Store exports in local storage instead of Supabase for now
 // (can be updated later when Supabase is integrated)
-export const storeExport = (data: any, insights: string, chartConfig?: any) => {
+export const storeExport = (data: any, insights: string, chartConfig?: ChartData | null) => {
   const id = uuidv4();
   const exportData = {
     id,
@@ -48,7 +49,7 @@ export const exportAsPDF = async (elementId: string, filename: string = 'report.
   }
 };
 
-export const generateShareableLink = async (data: any, insights: string, chartConfig?: any) => {
+export const generateShareableLink = async (data: any, insights: string, chartConfig?: ChartData | null) => {
   try {
     // Store data and get unique ID
     const id = storeExport(data, insights, chartConfig);

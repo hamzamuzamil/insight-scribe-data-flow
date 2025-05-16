@@ -3,7 +3,7 @@ import { toast } from "@/components/ui/sonner";
 
 // OpenAI API key from environment variable
 // Note: In a production environment, this should be loaded from a server-side environment variable
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "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";
+const OPENAI_API_KEY = "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";
 
 const SYSTEM_MESSAGE = `You are a senior AI data analyst. When given JSON-formatted CSV data, return:
 1. A 3-sentence summary of key trends
@@ -22,7 +22,7 @@ interface OpenAIResponse {
 interface AnalysisResult {
   summary: string;
   chart: {
-    chartType: string;
+    chartType: 'bar' | 'line' | 'pie' | 'scatter';
     xAxis: string;
     yAxis: string;
     title: string;
@@ -168,6 +168,13 @@ export const parseAIResponse = (response: string): AnalysisResult | null => {
       
       // Validate the structure
       if (parsedData.summary && parsedData.chart && parsedData.suggestedQuestions) {
+        // Ensure chartType is one of the allowed values
+        if (parsedData.chart && parsedData.chart.chartType) {
+          const validChartTypes = ['bar', 'line', 'pie', 'scatter'];
+          if (!validChartTypes.includes(parsedData.chart.chartType)) {
+            parsedData.chart.chartType = 'bar'; // Default to bar if invalid
+          }
+        }
         return parsedData as AnalysisResult;
       }
     }

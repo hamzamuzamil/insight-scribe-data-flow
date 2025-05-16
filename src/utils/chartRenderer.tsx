@@ -38,7 +38,8 @@ export const isValidChartData = (data: any): data is ChartData => {
     'yAxis' in data &&
     'data' in data &&
     Array.isArray(data.data) &&
-    data.data.length > 0
+    data.data.length > 0 &&
+    ['bar', 'line', 'pie', 'scatter'].includes(data.chartType)
   );
 };
 
@@ -57,10 +58,25 @@ export const tryParseChartData = (text: string): ChartData | null => {
       const jsonStr = jsonMatch[0];
       const parsedData = JSON.parse(jsonStr);
       
+      // Check if the chart type is valid, default to bar if not
+      if (parsedData && parsedData.chartType && !['bar', 'line', 'pie', 'scatter'].includes(parsedData.chartType)) {
+        parsedData.chartType = 'bar';
+      }
+      
       if (isValidChartData(parsedData)) {
         return parsedData;
-      } else if (parsedData.chart && isValidChartData(parsedData.chart)) {
-        return parsedData.chart;
+      } else if (parsedData.chart) {
+        // Check if the chart type is valid, default to bar if not
+        if (parsedData.chart.chartType && !['bar', 'line', 'pie', 'scatter'].includes(parsedData.chart.chartType)) {
+          parsedData.chart.chartType = 'bar';
+        }
+        
+        if (isValidChartData(parsedData.chart)) {
+          return parsedData.chart;
+        } else {
+          console.error("Invalid chart data format:", parsedData);
+          toast.error("AI didn't generate a chart. Try asking for a bar or pie chart.");
+        }
       } else {
         console.error("Invalid chart data format:", parsedData);
         toast.error("AI didn't generate a chart. Try asking for a bar or pie chart.");
