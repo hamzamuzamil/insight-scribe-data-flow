@@ -3,21 +3,20 @@ import React, { useRef, useEffect } from 'react';
 import { Loader } from "@/components/ui/loader";
 import { DynamicChart } from "@/utils/chartRenderer";
 import { ChartData } from "@/utils/chartRenderer";
-
-interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-  chartData?: ChartData | null;
-}
+import { Message } from "./types";
+import { Button } from "@/components/ui/button";
 
 interface MessageListProps {
   messages: Message[];
   isLoading: boolean;
+  onSuggestedQuestionClick?: (question: string) => void;
 }
 
-export const MessageList: React.FC<MessageListProps> = ({ messages, isLoading }) => {
+export const MessageList: React.FC<MessageListProps> = ({ 
+  messages, 
+  isLoading, 
+  onSuggestedQuestionClick 
+}) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,6 +43,23 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isLoading })
           >
             <div className="whitespace-pre-wrap">{message.content}</div>
             {message.chartData && <DynamicChart chartData={message.chartData} />}
+            {message.suggestedQuestions && message.suggestedQuestions.length > 0 && onSuggestedQuestionClick && (
+              <div className="mt-3 space-y-2">
+                <p className="text-sm font-medium">Suggested questions:</p>
+                <div className="flex flex-wrap gap-2">
+                  {message.suggestedQuestions.map((question, idx) => (
+                    <Button 
+                      key={idx} 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => onSuggestedQuestionClick(question)}
+                    >
+                      {question}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="text-xs opacity-70 mt-1">
               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/sonner";
@@ -112,6 +113,7 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
       const parsedResponse = parseAIResponse(response);
       let aiResponseContent = response;
       let chartData = null;
+      let questionSuggestions: string[] = [];
       
       if (parsedResponse) {
         // If structured response, update insights
@@ -128,6 +130,7 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
         
         // Update suggested questions
         if (parsedResponse.suggestedQuestions) {
+          questionSuggestions = parsedResponse.suggestedQuestions;
           setSuggestedQuestions(parsedResponse.suggestedQuestions);
         }
       } else {
@@ -148,7 +151,8 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
         content: aiResponseContent,
         sender: 'ai',
         timestamp: new Date(),
-        chartData: chartData
+        chartData: chartData,
+        suggestedQuestions: questionSuggestions
       };
       
       setMessages(prevMessages => [...prevMessages, aiMessage]);
@@ -158,7 +162,7 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
       
       const errorMessage: Message = {
         id: Date.now().toString(),
-        content: "I'm sorry, I couldn't process that request. Please try rephrasing your question.",
+        content: "We couldn't analyze that. Try rephrasing or using fewer rows.",
         sender: 'ai',
         timestamp: new Date(),
       };
@@ -190,6 +194,7 @@ export const ChatInterface = ({ csvData }: ChatInterfaceProps) => {
               <MessageList 
                 messages={messages} 
                 isLoading={isLoading} 
+                onSuggestedQuestionClick={handleSuggestionClick}
               />
             </CardContent>
 

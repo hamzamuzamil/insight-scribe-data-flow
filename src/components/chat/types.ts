@@ -7,6 +7,7 @@ export interface Message {
   sender: 'user' | 'ai';
   timestamp: Date;
   chartData?: ChartData | null;
+  suggestedQuestions?: string[];
 }
 
 export interface ChatInterfaceProps {

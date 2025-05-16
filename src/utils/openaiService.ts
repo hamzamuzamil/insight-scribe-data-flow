@@ -5,11 +5,7 @@ import { toast } from "@/components/ui/sonner";
 // Note: In a production environment, this should be loaded from a server-side environment variable
 const OPENAI_API_KEY = "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";
 
-const SYSTEM_MESSAGE = `You are a senior AI data analyst. When given JSON-formatted CSV data, return:
-1. A 3-sentence summary of key trends
-2. A chart config object: { chartType, xAxis, yAxis, title, data }
-3. Three follow-up questions
-Format output as valid JSON.`;
+const SYSTEM_MESSAGE = `You are an expert data analyst. Analyze the JSON data and return a short insight summary, chart config (type, xAxis, yAxis, title, data), and 3 follow-up questions. Format as JSON only.`;
 
 interface OpenAIResponse {
   choices: {
@@ -40,11 +36,16 @@ const preprocessData = (data: any[]): any[] => {
   // Limit to 100 rows to prevent overloading the API
   const limitedData = data.slice(0, 100);
   
-  // Filter out empty columns
+  // Filter out null, undefined, and nested fields
   const cleanData = limitedData.map(row => {
     const cleanRow: Record<string, any> = {};
     Object.entries(row).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
+      if (
+        value !== undefined && 
+        value !== null && 
+        value !== '' && 
+        (typeof value === 'string' || typeof value === 'number')
+      ) {
         cleanRow[key] = value;
       }
     });
@@ -102,7 +103,7 @@ export const analyzeDataWithGPT = async (data: any): Promise<string> => {
   } catch (error) {
     console.error("Error analyzing data with GPT:", error);
     toast.error("AI is taking too long. Try again or reduce file size.");
-    return "Error analyzing data. Please try again later or reduce file size.";
+    return "We couldn't analyze that. Try rephrasing or using fewer rows.";
   }
 };
 
@@ -153,7 +154,7 @@ export const processUserQuestion = async (question: string, data: any): Promise<
   } catch (error) {
     console.error("Error processing question with GPT:", error);
     toast.error("We couldn't process that request. Please retry with different input.");
-    return "Error processing your question. Please try a different approach.";
+    return "We couldn't analyze that. Try rephrasing or using fewer rows.";
   }
 };
 
