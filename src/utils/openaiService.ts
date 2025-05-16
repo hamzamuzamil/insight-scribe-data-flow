@@ -19,7 +19,7 @@ interface OpenAIResponse {
   }[];
 }
 
-interface AnalysisResult {
+export interface AnalysisResult {
   summary: string;
   chart: {
     chartType: 'bar' | 'line' | 'pie' | 'scatter';
