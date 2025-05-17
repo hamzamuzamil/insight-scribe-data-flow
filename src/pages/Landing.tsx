@@ -11,7 +11,7 @@ import { BackgroundGradient } from "@/components/BackgroundGradient";
 import { Stats } from "@/components/Stats";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { GalleryHorizontal, ChevronUp } from "lucide-react";
 
 const Landing = () => {
