@@ -41,28 +41,33 @@ export const HeroSection = () => {
           </div>
         </div>
 
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight max-w-3xl text-gradient mb-6">
-          Upload your data. Discover the truth.
-        </h1>
+        <div className="relative">
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-40 h-40 bg-primary/20 rounded-full blur-3xl opacity-70"></div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight max-w-3xl text-gradient mb-6">
+            Upload your data. Discover the truth.
+          </h1>
+        </div>
+        
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10">
           ProReporter turns your raw data into actionable insights with AI-powered analytics.
           Ask natural language questions and get instant answers and visualizations.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <Button asChild size="lg" className="px-8">
+          <Button asChild size="lg" className="px-8 shadow-glow-primary">
             <Link to="/app">
               Get Started for Free
             </Link>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <Link to="/">
+            <Link to="/templates">
               <GalleryHorizontal className="mr-2 h-4 w-4" />
               View Templates
             </Link>
           </Button>
         </div>
+        
         <div className="mt-16 w-full max-w-5xl mx-auto relative">
-          <div className="rounded-xl overflow-hidden border border-white/10 glass shadow-2xl">
+          <div className="rounded-xl overflow-hidden border border-white/10 glass shadow-2xl transform-gpu hover:scale-[1.01] transition-all duration-500">
             <AspectRatio ratio={16/9} className="bg-gradient-to-br from-primary/5 to-purple-500/5">
               <img 
                 src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop"

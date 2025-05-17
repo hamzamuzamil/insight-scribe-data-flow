@@ -69,7 +69,8 @@ const features = [
 
 export const FeaturesSection = () => {
   return (
-    <section className="py-20 md:py-28" id="features">
+    <section className="py-20 md:py-28 relative" id="features">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent -z-10"></div>
       <div className="container">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-gradient">
@@ -82,9 +83,10 @@ export const FeaturesSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="glass border-white/10 hover:border-primary/50 transition-all duration-300 overflow-hidden">
+            <Card key={index} className="glass border-white/10 hover:border-primary/50 transition-all duration-300 overflow-hidden group perspective-3d">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="mb-2">{feature.icon}</div>
+                <div className="mb-2 p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">{feature.icon}</div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
               </CardContent>

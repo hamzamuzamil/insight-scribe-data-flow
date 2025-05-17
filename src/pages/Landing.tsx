@@ -6,13 +6,17 @@ import { TemplatesSection } from "@/components/TemplatesSection";
 import { TestimonialSection } from "@/components/TestimonialSection";
 import { CtaSection } from "@/components/CtaSection";
 import { Footer } from "@/components/Footer";
+import { BackgroundGradient } from "@/components/BackgroundGradient";
+import { Stats } from "@/components/Stats";
 
 const Landing = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-black/95">
+    <div className="min-h-screen flex flex-col relative">
+      <BackgroundGradient />
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow relative z-10">
         <HeroSection />
+        <Stats />
         <FeaturesSection />
         <TemplatesSection />
         <TestimonialSection />

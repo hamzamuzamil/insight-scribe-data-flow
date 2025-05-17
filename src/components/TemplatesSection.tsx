@@ -51,7 +51,7 @@ const templates = [
 
 export const TemplatesSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-secondary/30" id="templates">
+    <section className="py-20 md:py-28" id="templates">
       <div className="container">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-gradient">
@@ -64,17 +64,24 @@ export const TemplatesSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {templates.map((template, index) => (
-            <Card key={index} className="glass border-white/10 hover:border-primary/50 transition-all duration-300">
+            <Card key={index} className="glass border-white/10 hover:border-primary/50 transition-all duration-300 group hover-lift">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="mb-2">{template.icon}</div>
+                <div className="mb-2 transform-gpu group-hover:scale-110 transition-transform duration-300">{template.icon}</div>
                 <h3 className="text-xl font-semibold mb-2">{template.title}</h3>
                 <p className="text-muted-foreground text-sm mb-4">{template.description}</p>
-                <Button variant="outline" size="sm" className="mt-auto" asChild>
-                  <Link to="/app">Use Template</Link>
+                <Button variant="outline" size="sm" className="mt-auto group-hover:bg-primary/10 transition-colors" asChild>
+                  <Link to="/templates">Use Template</Link>
                 </Button>
               </CardContent>
             </Card>
           ))}
+        </div>
+        
+        <div className="mt-16 text-center">
+          <Button asChild variant="outline" className="glass hover:bg-primary/10">
+            <Link to="/templates">View All Templates</Link>
+          </Button>
         </div>
       </div>
     </section>

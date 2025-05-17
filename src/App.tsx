@@ -1,32 +1,27 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import App from "./pages/App";
 import NotFound from "./pages/NotFound";
+import Templates from "./pages/Templates";
 import SharedReport from "./pages/SharedReport";
+import { Toaster } from "./components/ui/toaster";
 
-const queryClient = new QueryClient();
-
-const AppContainer = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+function MainApp() {
+  return (
+    <>
+      <Router>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/app" element={<App />} />
-          <Route path="/share/:id" element={<SharedReport />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/shared/:reportId" element={<SharedReport />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </Router>
+      <Toaster />
+    </>
+  );
+}
 
-export default AppContainer;
-
+export default MainApp;
