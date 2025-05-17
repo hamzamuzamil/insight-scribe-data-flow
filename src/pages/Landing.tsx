@@ -9,7 +9,7 @@ import { Footer } from "@/components/Footer";
 
 const Landing = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-black/95">
       <Header />
       <main className="flex-grow">
         <HeroSection />

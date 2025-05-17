@@ -1,6 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { GalleryHorizontal } from "lucide-react";
 
 export const HeroSection = () => {
   return (
@@ -54,17 +56,35 @@ export const HeroSection = () => {
           </Button>
           <Button asChild variant="outline" size="lg">
             <Link to="/">
+              <GalleryHorizontal className="mr-2 h-4 w-4" />
               View Templates
             </Link>
           </Button>
         </div>
         <div className="mt-16 w-full max-w-5xl mx-auto relative">
-          <div className="aspect-[16/9] rounded-lg overflow-hidden border border-white/10 glass shadow-2xl">
-            <img 
-              src="/placeholder.svg"
-              alt="ProReporter Dashboard Preview"
-              className="w-full h-full object-cover"
-            />
+          <div className="rounded-xl overflow-hidden border border-white/10 glass shadow-2xl">
+            <AspectRatio ratio={16/9} className="bg-gradient-to-br from-primary/5 to-purple-500/5">
+              <img 
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop"
+                alt="ProReporter Dashboard Preview"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6 flex items-center justify-between">
+                <div className="bg-card/80 backdrop-blur-md p-3 rounded-lg flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <GalleryHorizontal className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-medium">Revenue Analytics</p>
+                    <p className="text-xs text-muted-foreground">Q1 2025 Report</p>
+                  </div>
+                </div>
+                <div className="hidden md:block bg-card/80 backdrop-blur-md py-2 px-3 rounded-lg">
+                  <p className="text-xs">Growth increased by <span className="text-green-400 font-medium">24%</span> since last quarter</p>
+                </div>
+              </div>
+            </AspectRatio>
           </div>
           <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-md border border-white/10 rounded-full py-2 px-4 text-sm text-muted-foreground">
             Visualize trends, spot anomalies, and make data-driven decisions
