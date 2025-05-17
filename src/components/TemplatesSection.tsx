@@ -137,3 +137,5 @@ export const TemplatesSection = () => {
     </section>
   );
 };
+
+export default { TemplatesSection };

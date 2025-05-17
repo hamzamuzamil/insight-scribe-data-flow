@@ -12,13 +12,13 @@ export const Header = () => {
           <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Home
           </Link>
-          <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Features
           </Link>
-          <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/templates" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Templates
           </Link>
-          <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/#about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             About
           </Link>
         </nav>

@@ -30,3 +30,5 @@ export const CtaSection = () => {
     </section>
   );
 };
+
+export default { CtaSection };

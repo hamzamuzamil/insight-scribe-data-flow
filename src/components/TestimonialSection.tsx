@@ -1,58 +1,125 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-import { Card, CardContent } from "@/components/ui/card";
-
+// Testimonials data
 const testimonials = [
   {
-    text: "ProReporter has transformed how we analyze our marketing data. We're finding insights in minutes that used to take days.",
-    author: "Sarah Johnson",
-    title: "Marketing Director, TechGrowth"
+    name: "Sarah Johnson",
+    title: "Marketing Manager at Tech Solutions",
+    quote: "ProReporter has transformed the way we analyze data. The AI-driven insights are incredibly accurate and have helped us make data-driven decisions faster than ever before.",
+    image: "https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80",
   },
   {
-    text: "The ability to chat with our data has been revolutionary. Our team is making better decisions based on actual insights, not just hunches.",
-    author: "Alex Rodriguez",
-    title: "Founder, DataDriven"
+    name: "David Lee",
+    title: "CEO of Innovate Corp",
+    quote: "I was skeptical about AI analytics, but ProReporter exceeded my expectations. It's user-friendly, provides actionable insights, and has significantly improved our business strategy.",
+    image: "https://images.unsplash.com/photo-1500648767791-00d5a4ee9aa5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80",
   },
   {
-    text: "I was blown away by how quickly ProReporter understood our complex ecommerce data and helped us spot seasonal trends we'd missed for years.",
-    author: "Jessica Chen",
-    title: "Analytics Lead, ShopWise"
-  }
+    name: "Emily Chen",
+    title: "Data Analyst at Global Dynamics",
+    quote: "As a data analyst, I appreciate the depth of analysis ProReporter offers. The ability to ask natural language questions and get instant visualizations is a game-changer.",
+    image: "https://images.unsplash.com/photo-1580489944761-15a19d674c8e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80",
+  },
 ];
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3,
+    },
+  },
+};
+
+const testimonialVariants = {
+  hidden: { opacity: 0, y: 50 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeInOut" } },
+};
+
+// Export component for lazy loading
 export const TestimonialSection = () => {
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  const nextTestimonial = () => {
+    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+
   return (
-    <section className="py-20 md:py-28">
+    <section className="py-20 md:py-28 relative">
       <div className="container">
-        <div className="text-center mb-16">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-gradient">
             What Our Users Say
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Hear from data analysts, founders, and marketers who've transformed their approach to data.
+            Real stories from real people who have transformed their businesses with ProReporter.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="glass border-white/10">
-              <CardContent className="p-8 flex flex-col">
-                <div className="mb-4 text-primary">
-                  <svg width="45" height="36" viewBox="0 0 45 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-70">
-                    <path d="M13.5 18H9C9 12.477 13.477 8 19 8V12C15.686 12 13 14.686 13 18V18.75C13 19.9926 14.0074 21 15.25 21H17.25C18.4926 21 19.5 19.9926 19.5 18.75V15.75C19.5 14.5074 18.4926 13.5 17.25 13.5H15.25H15C15 10.7909 16.7909 9 19 9V8C13.4772 8 9 12.4772 9 18H13.5ZM13.5 18V21M33 18H28.5C28.5 12.477 32.977 8 38.5 8V12C35.186 12 32.5 14.686 32.5 18V18.75C32.5 19.9926 33.5074 21 34.75 21H36.75C37.9926 21 39 19.9926 39 18.75V15.75C39 14.5074 37.9926 13.5 36.75 13.5H34.75H34.5C34.5 10.7909 36.2909 9 38.5 9V8C32.9772 8 28.5 12.4772 28.5 18H33ZM33 18V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                
-                <p className="mb-6 text-foreground/90 italic">{testimonial.text}</p>
-                
-                <div className="mt-auto pt-4 border-t border-white/10">
-                  <p className="font-medium">{testimonial.author}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.title}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <motion.div
+          className="max-w-4xl mx-auto"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
+          <motion.div
+            key={currentTestimonial}
+            className="glass p-8 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-6 overflow-hidden"
+            variants={testimonialVariants}
+          >
+            <img
+              src={testimonials[currentTestimonial].image}
+              alt={testimonials[currentTestimonial].name}
+              className="w-24 h-24 rounded-full object-cover shadow-md"
+            />
+            <div>
+              <h3 className="text-xl font-semibold mb-1">{testimonials[currentTestimonial].name}</h3>
+              <p className="text-muted-foreground text-sm mb-3">{testimonials[currentTestimonial].title}</p>
+              <p className="text-lg italic text-gray-300">“{testimonials[currentTestimonial].quote}”</p>
+            </div>
+          </motion.div>
+
+          <div className="flex justify-center mt-6 space-x-4">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="rounded-full h-10 w-10 glass shadow-glow-primary flex items-center justify-center"
+              onClick={prevTestimonial}
+              aria-label="Previous Testimonial"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="rounded-full h-10 w-10 glass shadow-glow-primary flex items-center justify-center"
+              onClick={nextTestimonial}
+              aria-label="Next Testimonial"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </motion.button>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 };
+
+export default { TestimonialSection };

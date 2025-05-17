@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
@@ -97,3 +96,5 @@ export const FeaturesSection = () => {
     </section>
   );
 };
+
+export default { FeaturesSection };
