@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { GalleryHorizontal } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const HeroSection = () => {
   return (
@@ -41,40 +42,74 @@ export const HeroSection = () => {
           </div>
         </div>
 
-        <div className="relative">
+        <motion.div 
+          className="relative"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-40 h-40 bg-primary/20 rounded-full blur-3xl opacity-70"></div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight max-w-3xl text-gradient mb-6">
             Upload your data. Discover the truth.
           </h1>
-        </div>
+        </motion.div>
         
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10">
+        <motion.p 
+          className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           ProReporter turns your raw data into actionable insights with AI-powered analytics.
           Ask natural language questions and get instant answers and visualizations.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <Button asChild size="lg" className="px-8 shadow-glow-primary">
-            <Link to="/app">
-              Get Started for Free
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link to="/templates">
-              <GalleryHorizontal className="mr-2 h-4 w-4" />
-              View Templates
-            </Link>
-          </Button>
-        </div>
+        </motion.p>
+        <motion.div 
+          className="flex flex-col sm:flex-row gap-4 w-full justify-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+            <Button asChild size="lg" className="px-8 shadow-glow-primary relative overflow-hidden group">
+              <Link to="/app">
+                <span className="relative z-10">Get Started for Free</span>
+                <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+              </Link>
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+            <Button asChild variant="outline" size="lg" className="group">
+              <Link to="/templates">
+                <GalleryHorizontal className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
+                <span>View Templates</span>
+                <span className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+              </Link>
+            </Button>
+          </motion.div>
+        </motion.div>
         
-        <div className="mt-16 w-full max-w-5xl mx-auto relative">
-          <div className="rounded-xl overflow-hidden border border-white/10 glass shadow-2xl transform-gpu hover:scale-[1.01] transition-all duration-500">
+        <motion.div 
+          className="mt-16 w-full max-w-5xl mx-auto relative"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+        >
+          <div className="rounded-xl overflow-hidden border border-white/10 glass shadow-2xl transform-gpu hover:scale-[1.01] transition-all duration-500 perspective-3d">
             <AspectRatio ratio={16/9} className="bg-gradient-to-br from-primary/5 to-purple-500/5">
-              <img 
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop"
-                alt="ProReporter Dashboard Preview"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+              <div className="absolute inset-0 overflow-hidden">
+                <img 
+                  src="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=1600&auto=format&fit=crop"
+                  alt="ProReporter Dashboard Preview"
+                  className="w-full h-full object-cover opacity-80"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background/80"></div>
+                
+                {/* 3D Chart Overlay Elements */}
+                <div className="absolute top-1/4 left-1/4 w-1/2 h-1/3 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-lg backdrop-blur-sm border border-white/10 shadow-[0_0_15px_rgba(59,130,246,0.5)] transform rotate-1 floating"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-1/3 h-1/4 bg-gradient-to-r from-green-500/30 to-teal-500/30 rounded-lg backdrop-blur-sm border border-white/10 shadow-[0_0_15px_rgba(16,185,129,0.5)] transform -rotate-2 floating" style={{animationDelay: "1s"}}></div>
+                <div className="absolute top-1/3 right-1/5 w-1/4 h-1/5 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-lg backdrop-blur-sm border border-white/10 shadow-[0_0_15px_rgba(168,85,247,0.5)] transform rotate-3 floating" style={{animationDelay: "0.5s"}}></div>
+              </div>
+
               <div className="absolute bottom-0 left-0 right-0 p-6 flex items-center justify-between">
                 <div className="bg-card/80 backdrop-blur-md p-3 rounded-lg flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
@@ -94,7 +129,7 @@ export const HeroSection = () => {
           <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-md border border-white/10 rounded-full py-2 px-4 text-sm text-muted-foreground">
             Visualize trends, spot anomalies, and make data-driven decisions
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

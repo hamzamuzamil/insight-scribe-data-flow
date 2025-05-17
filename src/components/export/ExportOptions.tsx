@@ -1,8 +1,11 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { exportAsPDF, generateShareableLink, exportToNotion, exportAsZIP } from "@/utils/exportUtils";
 import { ChartData } from "@/utils/chartRenderer";
+import { FileDown, Link as LinkIcon, Copy, FileText, Archive } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
+import { motion } from "framer-motion";
 
 interface ExportOptionsProps {
   csvData: any;
@@ -12,50 +15,270 @@ interface ExportOptionsProps {
 
 export const ExportOptions: React.FC<ExportOptionsProps> = ({ csvData, insights, chartConfig }) => {
   const reportContentRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState<string | null>(null);
+  const [shareLink, setShareLink] = useState<string | null>(null);
 
-  const handleExportPDF = () => {
-    exportAsPDF('report-content', 'data-analysis-report.pdf');
+  const handleExportPDF = async () => {
+    setIsExporting('pdf');
+    try {
+      await exportAsPDF('report-content', 'data-analysis-report.pdf');
+      toast.success('PDF exported successfully');
+    } catch (error) {
+      toast.error('Failed to export PDF');
+      console.error(error);
+    } finally {
+      setIsExporting(null);
+    }
   };
 
   const handleShareLink = async () => {
-    await generateShareableLink(csvData, insights, chartConfig);
+    setIsExporting('link');
+    try {
+      const link = await generateShareableLink(csvData, insights, chartConfig);
+      if (link) {
+        setShareLink(link);
+        toast.success('Share link generated and copied to clipboard');
+      }
+    } catch (error) {
+      toast.error('Failed to generate share link');
+      console.error(error);
+    } finally {
+      setIsExporting(null);
+    }
   };
 
-  const handleExportZIP = () => {
-    exportAsZIP(csvData, insights, 'data-insights.zip');
+  const handleExportZIP = async () => {
+    setIsExporting('zip');
+    try {
+      await exportAsZIP(csvData, insights, 'data-insights.zip');
+      toast.success('ZIP file exported successfully');
+    } catch (error) {
+      toast.error('Failed to export ZIP file');
+      console.error(error);
+    } finally {
+      setIsExporting(null);
+    }
+  };
+
+  const handleExportNotion = async () => {
+    setIsExporting('notion');
+    try {
+      await exportToNotion();
+      toast.success('Content ready for Notion');
+    } catch (error) {
+      toast.error('Failed to prepare Notion export');
+      console.error(error);
+    } finally {
+      setIsExporting(null);
+    }
+  };
+
+  const copyShareLink = () => {
+    if (shareLink) {
+      navigator.clipboard.writeText(shareLink);
+      toast.success('Link copied to clipboard');
+    }
   };
 
   return (
     <div ref={reportContentRef}>
-      <h3 className="text-lg font-medium mb-4">Export Options</h3>
-      <div className="space-y-4">
-        <div className="flex flex-col space-y-2">
-          <Button variant="outline" className="justify-start" onClick={handleExportPDF}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line>
-            </svg>
-            Export as PDF
-          </Button>
-          <Button variant="outline" className="justify-start" onClick={handleShareLink}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-            </svg>
-            Generate Share Link
-          </Button>
-          <Button variant="outline" className="justify-start" onClick={exportToNotion}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line><line x1="10" x2="8" y1="9" y2="9"></line>
-            </svg>
-            Export to Notion
-          </Button>
-          <Button variant="outline" className="justify-start" onClick={handleExportZIP}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path>
-            </svg>
-            Export CSV with Insights
-          </Button>
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-6"
+      >
+        <h3 className="text-lg font-medium mb-4">Export Options</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="glass rounded-xl p-5 border border-white/10">
+            <h4 className="font-medium mb-3 flex items-center">
+              <LinkIcon className="mr-2 h-4 w-4 text-primary" />
+              Share Analysis
+            </h4>
+            <p className="text-sm text-muted-foreground mb-4">Generate a shareable link to your analysis that others can view.</p>
+            
+            {shareLink ? (
+              <div className="flex items-center gap-2 mb-3">
+                <input
+                  type="text"
+                  value={shareLink}
+                  readOnly
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button size="icon" onClick={copyShareLink}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+              </div>
+            ) : null}
+            
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button 
+                variant="outline" 
+                className="w-full justify-center" 
+                onClick={handleShareLink}
+                disabled={isExporting === 'link'}
+              >
+                {isExporting === 'link' ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="mr-2"
+                    >
+                      <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    </motion.div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    Generate Share Link
+                  </>
+                )}
+              </Button>
+            </motion.div>
+          </div>
+          
+          <div className="glass rounded-xl p-5 border border-white/10">
+            <h4 className="font-medium mb-3 flex items-center">
+              <FileDown className="mr-2 h-4 w-4 text-primary" />
+              Export Report
+            </h4>
+            <p className="text-sm text-muted-foreground mb-4">Download your analysis and insights in different formats.</p>
+            
+            <div className="space-y-2">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  onClick={handleExportPDF}
+                  disabled={isExporting === 'pdf'}
+                >
+                  {isExporting === 'pdf' ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="mr-2"
+                      >
+                        <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      </motion.div>
+                      Exporting...
+                    </>
+                  ) : (
+                    <>
+                      <FileDown className="mr-2 h-4 w-4" />
+                      Export as PDF
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+              
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  onClick={handleExportNotion}
+                  disabled={isExporting === 'notion'}
+                >
+                  {isExporting === 'notion' ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="mr-2"
+                      >
+                        <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      </motion.div>
+                      Preparing...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="mr-2 h-4 w-4" />
+                      Export to Notion
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+              
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  onClick={handleExportZIP}
+                  disabled={isExporting === 'zip'}
+                >
+                  {isExporting === 'zip' ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="mr-2"
+                      >
+                        <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      </motion.div>
+                      Archiving...
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="mr-2 h-4 w-4" />
+                      Export CSV with Insights
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+            </div>
+          </div>
         </div>
-      </div>
+      </motion.div>
+      
+      {/* Trust Boosting Section */}
+      <motion.div 
+        className="mt-8 glass rounded-xl p-5 border border-white/10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <h4 className="font-medium mb-4">Why People Love ProReporter</h4>
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="text-center p-3">
+            <div className="text-2xl font-bold text-primary mb-1">99%</div>
+            <div className="text-xs text-muted-foreground">Satisfaction Rate</div>
+          </div>
+          <div className="text-center p-3">
+            <div className="text-2xl font-bold text-primary mb-1">500K+</div>
+            <div className="text-xs text-muted-foreground">Insights Generated</div>
+          </div>
+          <div className="text-center p-3">
+            <div className="text-2xl font-bold text-primary mb-1">12K+</div>
+            <div className="text-xs text-muted-foreground">Active Users</div>
+          </div>
+        </div>
+        
+        <div className="flex overflow-x-auto scrollbar-none gap-3 py-2">
+          {[
+            { name: "Sarah K.", role: "Marketing Director", text: "ProReporter saved me hours of data analysis every week." },
+            { name: "Michael T.", role: "Finance Analyst", text: "The insights feature helped us identify critical business trends." },
+            { name: "Priya M.", role: "Product Manager", text: "The best data tool I've used. Interactive and intuitive!" },
+            { name: "James L.", role: "Startup Founder", text: "Made our quarterly reports 10x better with minimal effort." }
+          ].map((testimonial, index) => (
+            <motion.div
+              key={index}
+              className="min-w-[250px] glass bg-secondary/30 p-4 rounded-lg flex-shrink-0"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 * index }}
+            >
+              <p className="text-sm italic mb-2">"{testimonial.text}"</p>
+              <div className="text-xs">
+                <span className="font-medium text-primary">{testimonial.name}</span> • {testimonial.role}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
     </div>
   );
 };
