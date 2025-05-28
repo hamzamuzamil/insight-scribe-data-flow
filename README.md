@@ -1,73 +1,70 @@
-# Welcome to your Lovable project
+# Insight Scribe - Intelligent Data Analytics Platform
 
-## Project info
+## Overview
 
-**URL**: https://lovable.dev/projects/b1fb5b7a-bc69-433d-a1ae-392e8e7e8f74
+Insight Scribe is a sophisticated data analytics platform designed to transform complex data into clear, actionable insights. Built for business analysts and data professionals, it offers intuitive data visualization, natural language querying, and comprehensive reporting capabilities to make data analysis more accessible and efficient.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Interactive data visualization dashboard
+- Natural language data querying
+- Real-time insight generation
+- Custom report templates
+- Advanced analytics tools
+- Export capabilities (PDF, CSV, ZIP)
+- Shareable reports and insights
+- Mobile-responsive interface
 
-**Use Lovable**
+## Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b1fb5b7a-bc69-433d-a1ae-392e8e7e8f74) and start prompting.
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- Framer Motion
+- Recharts for data visualization
+- shadcn/ui components
+- React Router for navigation
 
-Changes made via Lovable will be committed automatically to this repo.
+## Local Development
 
-**Use your preferred IDE**
+```bash
+# Install dependencies
+npm install
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Run development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+Project Structure
+```
+src/
+├── components/     # UI components
+├── utils/         # Utility functions
+├── hooks/         # Custom React hooks
+├── lib/           # Core libraries
+├── pages/         # Page components
+└── styles/        # Global styles
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Key Components
 
-**Use GitHub Codespaces**
+- Data Analysis Engine
+- Template System
+- Export Module
+- Interactive Charts
+- Natural Language Processing
+- Report Generation
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Contributing
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/b1fb5b7a-bc69-433d-a1ae-392e8e7e8f74) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Fork the repository
+2. Create your feature branch ( git checkout -b feature/AmazingFeature )
+3. Commit your changes ( git commit -m 'Add some AmazingFeature' )
+4. Push to the branch ( git push origin feature/AmazingFeature )
+5. Open a Pull Request
